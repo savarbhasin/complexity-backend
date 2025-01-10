@@ -1,5 +1,5 @@
 from copilotkit import CopilotKitSDK, LangGraphAgent 
-from graph import workflow 
+from updated_graph import workflow 
 from copilotkit.integrations.fastapi import add_fastapi_endpoint
 from copilotkit.langchain import copilotkit_messages_to_langchain # you only need this if you use Google Gemini in your LangGraph agent.
 from fastapi import FastAPI
