@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+langchain = "*"
+langgraph = "*"
+langchain-openai = "*"
+copilotkit = "*"
+fastapi = "*"
+exa-py = "*"
+langchain-community = "*"
+arxiv = "*"
+uvicorn = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.10"

@@ -5,6 +5,7 @@ from exa_py import Exa
 from langchain.tools import tool
 from langgraph.prebuilt import ToolNode
 # from summarize import summarize_text
+import json
 from langgraph.types import Command
 from langchain_core.tools.base import InjectedToolCallId
 from langchain_core.messages import ToolMessage
@@ -42,15 +43,16 @@ class ComplexityState(BaseModel):
     messages: Annotated[Sequence[BaseMessage], add_messages] = []
     
     # get_youtube_videos
-    youtube_urls: Optional[List[str]] = None
+    # youtube_urls: Optional[List[str]] = None
 
     # retrieve_web_content
-    web_urls: Optional[List[str]] = None
+    # web_urls: Optional[List[str]] = None
 
     # webscrape
-    similar_urls: Optional[List[str]] = None
+    # similar_urls: Optional[List[str]] = None
 
-    # arxiv_search
+    messages_format: List[dict] = []
+
 
 
 
@@ -64,11 +66,11 @@ def summarize_youtube_video(url:str)->str:
     headers = { "Content-Type": "application/json" }
     
     response = requests.get(f"https://yt-fastapi-backend.onrender.com/summary/{video_id}", headers=headers)
-    return response.json()
+    return {"contents":response.json(), "urls": [url]}
 
 # exa search tool
 @tool
-def retrieve_web_content(query: str) -> List[str]:
+def retrieve_web_content(query: str, tool_call_id: Annotated[str, InjectedToolCallId]):
     """Find latest web content based on a query"""
     data = exa.search_and_contents(query=query, num_results=5, text=True, use_autoprompt=True, exclude_domains=["youtube.com", "twitter.com", "x.com", "arxiv.org"])
     formatted_data = [ 
@@ -81,7 +83,7 @@ def retrieve_web_content(query: str) -> List[str]:
         } 
         for res in data.results]
     urls = [res.url for res in data.results]
-    return formatted_data
+    return {"contents": formatted_data, "urls": urls}
 
 # webscrape tool
 @tool
@@ -117,14 +119,13 @@ def webscrape(url_to_scrape:str):
         num_results=4,
         exclude_source_domain=True
     ).results]
- 
-    return response.json()["data"]["markdown"], similar_results
+    return {"content": response.json()["data"]["markdown"], "urls": [url_to_scrape] + similar_results}
 
 # arxiv tool
 @tool
 def arxiv_search(query: str):
     """Search for research papers on arxiv"""
-    return arxiv.run(query=query)
+    return {"contents":arxiv.run(query=query), "urls":[]}
 
 # x/twitter posts
 @tool
@@ -137,7 +138,7 @@ def get_twitter_posts(query:str)->List[str]:
         include_domains=["twitter.com", "x.com"]
     )
     contents = [ {"url": res.url, "content": res.text} for res in result.results]
-    return contents
+    return {"contents": contents, "urls": [res.url for res in result.results]}
 
 # youtube videos
 @tool
@@ -150,7 +151,7 @@ def get_youtube_videos(query:str)->List[str]:
         include_domains=["youtube.com", "youtu.be"]
     )
     contents = [ {"url": res.url, "content": res.text} for res in result.results]
-    return contents
+    return {"contents": contents, "urls": [res.url for res in result.results]}
 
 
 prompt = PromptTemplate.from_template("""
@@ -208,17 +209,40 @@ def format_messages(messages)->str:
             text += f"Tool: {i.content}\n"
     return text
 
+def format_messages_for_frontend(messages):
+    msgs = []
+    for i in messages:
+        if(i.content != ""):
+            if isinstance(i, HumanMessage):
+                msgs.append({"role": "human", "content": i.content})
+            elif isinstance(i, AIMessage):
+                msgs.append({"role": "ai", "content": i.content})
+            elif isinstance(i, ToolMessage):
+                urls = json.loads(i.content)["urls"]
+                msgs.append({"role": "tool", "urls": urls})
+    return msgs
+
 def chatbot(state:ComplexityState, config: RunnableConfig):
-     
+    print('---------------------------------------------Messsages---------------------------------------------')
+    print(state.messages)
+    print('------------------------------------------------------------------------------------------')
+    state.messages_format = (format_messages_for_frontend(state.messages))
+    print('---------------------------------------------Messsages Format---------------------------------------------')
+    print(state.messages_format)
+    print('------------------------------------------------------------------------------------------')
     config = copilotkit_customize_config(
         config,
         emit_tool_calls=["retrieve_web_content", "webscrape", "arxiv_search", "get_twitter_posts", "get_youtube_videos", "summarize_youtube_video"],
+        emit_messages=True,
     )
     
     messages = format_messages(state.messages)
     chain = prompt | openai_final
     answer = chain.invoke(messages, config)
-    return {"messages": [answer]}
+    state.messages.append(answer)
+    state.messages_format = (format_messages_for_frontend(state.messages))
+    # state.messages_format.append(AIMessage(content=answer.content))
+    return state
 
    
 

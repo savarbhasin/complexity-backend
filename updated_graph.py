@@ -1,13 +1,10 @@
 from langgraph.graph import StateGraph, END, START
-from typing import List
 from pydantic import BaseModel
 from exa_py import Exa
 from langchain.tools import tool
 from langgraph.prebuilt import ToolNode
 import json
-from langchain_core.messages import ToolMessage
-from langchain_core.runnables import RunnableConfig
-from copilotkit.langchain import copilotkit_customize_config
+from copilotkit.langgraph import copilotkit_customize_config
 from langchain_core.runnables import RunnableConfig
 from langgraph.checkpoint.memory import MemorySaver
 from langchain_core.messages import ToolMessage, HumanMessage, AIMessage
@@ -15,7 +12,6 @@ import re
 from langchain_community.utilities import ArxivAPIWrapper
 import requests
 from typing import Annotated, Sequence
-from datetime import datetime
 from langchain_core.messages import BaseMessage
 from dotenv import load_dotenv
 from langchain_core.prompts import PromptTemplate
@@ -24,32 +20,38 @@ import os
 from langgraph.prebuilt import tools_condition
 from langchain_openai import ChatOpenAI
 from datetime import datetime
+
 load_dotenv()
 
 exa = Exa(api_key=os.getenv("EXA_API_KEY"))
 arxiv = ArxivAPIWrapper()
 
+
 class ComplexityState(BaseModel):
     messages: Annotated[Sequence[BaseMessage], add_messages] = []
-    messages_format: List[dict] = []
+    # messages_format: List[dict] = []
+
 
 @tool
-def summarize_youtube_video(url: str) -> str:
-    """Summarize a youtube video given the url"""
-    regex = r"(?:https?:\/\/(?:www\.|m\.)?youtube\.com\/(?:watch\?v=|v\/)|https?:\/\/youtu\.be\/)([a-zA-Z0-9_-]{11})(?:[&?][^\s]*)?"
+def summarize_youtube_video(url: str):
+    """Summarize a YouTube video given the url"""
+    regex = (r"(?:https?:\/\/(?:www\.|m\.)?youtube\.com\/(?:watch\?v=|v\/)|https?:\/\/youtu\.be\/)([a-zA-Z0-9_-]{11})("
+             r"?:[&?][^\s]*)?")
     video_id = re.search(regex, url).group(1)
     headers = {"Content-Type": "application/json"}
     response = requests.get(f"https://yt-fastapi-backend.onrender.com/summary/{video_id}", headers=headers)
     return {
-        "contents": response.json(), 
+        "contents": response.json(),
         "urls": [url],
         "tool_name": "summarize_youtube_video"
     }
 
+
 @tool
 def retrieve_web_content(query: str):
     """Find latest web content based on a query"""
-    data = exa.search_and_contents(query=query, num_results=5, text=True, use_autoprompt=True, exclude_domains=["youtube.com", "twitter.com", "x.com", "arxiv.org"])
+    data = exa.search_and_contents(query=query, num_results=5, text=True, use_autoprompt=True,
+                                   exclude_domains=["youtube.com", "twitter.com", "x.com", "arxiv.org"])
     formatted_data = [
         {
             "title": res.url,
@@ -61,10 +63,11 @@ def retrieve_web_content(query: str):
         for res in data.results
     ]
     return {
-        "contents": formatted_data, 
+        "contents": formatted_data,
         "urls": [res.url for res in data.results],
         "tool_name": "retrieve_web_content"
     }
+
 
 @tool
 def webscrape(url_to_scrape: str):
@@ -96,19 +99,21 @@ def webscrape(url_to_scrape: str):
         exclude_source_domain=True
     ).results]
     return {
-        "content": response.json()["data"]["markdown"], 
+        "content": response.json()["data"]["markdown"],
         "urls": [url_to_scrape] + similar_results,
         "tool_name": "webscrape"
     }
+
 
 @tool
 def arxiv_search(query: str):
     """Search for research papers on arxiv"""
     return {
-        "contents": arxiv.run(query=query), 
+        "contents": arxiv.run(query=query),
         "urls": [],
         "tool_name": "arxiv_search"
     }
+
 
 @tool
 def get_twitter_posts(query: str):
@@ -121,10 +126,11 @@ def get_twitter_posts(query: str):
     )
     contents = [{"url": res.url, "content": res.text} for res in result.results]
     return {
-        "contents": contents, 
+        "contents": contents,
         "urls": [res.url for res in result.results],
         "tool_name": "get_twitter_posts"
     }
+
 
 @tool
 def get_youtube_videos(query: str):
@@ -137,13 +143,14 @@ def get_youtube_videos(query: str):
     )
     contents = [{"url": res.url, "content": res.text} for res in result.results]
     return {
-        "contents": contents, 
+        "contents": contents,
         "urls": [res.url for res in result.results],
         "tool_name": "get_youtube_videos"
     }
 
+
 @tool
-def search_on_any_website(query:str, domain:str):
+def search_on_any_website(query: str, domain: str):
     """
     This tool allows for searching content related to a specific website. 
     Only call this tool if the user has specified a domain to search on. (Those domain should not be youtube, twitter, arxiv)
@@ -160,10 +167,11 @@ def search_on_any_website(query:str, domain:str):
     )
     contents = [{"url": res.url, "content": res.text} for res in result.results]
     return {
-        "contents": contents, 
+        "contents": contents,
         "urls": [res.url for res in result.results],
         "tool_name": "search_on_any_website"
     }
+
 
 def format_messages(messages) -> str:
     text = ""
@@ -177,22 +185,23 @@ def format_messages(messages) -> str:
             text += f"Tool ({tool_content.get('tool_name', 'unknown')}): {tool_content}\n"
     return text
 
-def format_messages_for_frontend(messages):
-    msgs = []
-    for i in messages:
-        if(i.content != ""):
-            if isinstance(i, HumanMessage):
-                msgs.append({"role": "human", "content": i.content})
-            elif isinstance(i, AIMessage):
-                msgs.append({"role": "ai", "content": i.content})
-            elif isinstance(i, ToolMessage):
-                tool_content = json.loads(i.content)
-                msgs.append({
-                    "role": "tool", 
-                    "urls": tool_content.get("urls", []),
-                    "tool_name": tool_content.get("tool_name", "unknown")
-                })
-    return msgs
+
+# def format_messages_for_frontend(messages):
+#     msgs = []
+#     for i in messages:
+#         if(i.content != ""):
+#             if isinstance(i, HumanMessage):
+#                 msgs.append({"role": "human", "content": i.content})
+#             elif isinstance(i, AIMessage):
+#                 msgs.append({"role": "ai", "content": i.content})
+#             elif isinstance(i, ToolMessage):
+#                 tool_content = json.loads(i.content)
+#                 msgs.append({
+#                     "role": "tool", 
+#                     "urls": tool_content.get("urls", []),
+#                     "tool_name": tool_content.get("tool_name", "unknown")
+#                 })
+#     return msgs
 
 prompt = PromptTemplate.from_template("""
     ## SYSTEM INSTRUCTIONS:
@@ -247,29 +256,29 @@ prompt = PromptTemplate.from_template("""
     # USER CHAT: {messages}
 """)
 
+
 async def chatbot(state: ComplexityState, config: RunnableConfig):
-   
     config = copilotkit_customize_config(
         config,
-        emit_tool_calls=["retrieve_web_content", "webscrape", "arxiv_search", "get_twitter_posts", "get_youtube_videos", "summarize_youtube_video", "search_on_any_website"],
+        emit_tool_calls=["retrieve_web_content", "webscrape", "arxiv_search", "get_twitter_posts", "get_youtube_videos",
+                         "summarize_youtube_video", "search_on_any_website"],
         emit_messages=True,
     )
-    
-    messages = format_messages(state.messages)
+
+    reduced_tokens_messages = format_messages(state.messages)
     date = datetime.now().strftime("%Y-%m-%d")
 
     chain = prompt | openai_final
-    answer = chain.invoke({
-        "messages": messages,
+    answer = await chain.ainvoke({
+        "messages": reduced_tokens_messages,
         "date": date
     }, config)
 
-    state.messages.append(answer)
-    state.messages_format = (format_messages_for_frontend(state.messages))
+    return {"messages": [answer]}
 
-    return state
 
-tools = [retrieve_web_content, webscrape, arxiv_search, get_twitter_posts, get_youtube_videos, summarize_youtube_video, search_on_any_website]
+tools = [retrieve_web_content, webscrape, arxiv_search, get_twitter_posts, get_youtube_videos, summarize_youtube_video,
+         search_on_any_website]
 tool_node = ToolNode(tools)
 
 openai = ChatOpenAI(model="gpt-4o-mini", temperature=0.2, streaming=True).bind_tools(tools=tools)
