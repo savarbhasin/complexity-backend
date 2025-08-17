@@ -4,15 +4,21 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-langchain = "*"
-langgraph = "*"
 langchain-openai = "*"
-copilotkit = "*"
 fastapi = "*"
 exa-py = "*"
 langchain-community = "*"
 arxiv = "*"
 uvicorn = "*"
+langchain-groq = "*"
+langchain = {extras = ["google-genai"], version = "*"}
+langgraph = "*"
+langgraph-prebuilt = "*"
+textual = "*"
+rich = "*"
+prompt-toolkit = "*"
+ag-ui-langgraph = "*"
+copilotkit = "*"
 
 [dev-packages]
 
