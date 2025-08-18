@@ -1,7 +1,5 @@
-"""
-Simple SSE API based on try.py - streaming responses from the workflow.
-"""
 
+import os
 import json
 import asyncio
 from datetime import datetime
@@ -133,7 +131,7 @@ def main():
     uvicorn.run(
         "main:app",
         host="localhost",
-        port=8000,
+        port=int(os.getenv("PORT", 8000)),
         reload=True,
         log_level="info"
     )

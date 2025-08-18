@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "180b817612a72e3520a7029d08ced855e92c9af4fcf9228df8272f0e7bdb7817"
+            "sha256": "2775d0e2a0df1a5751a52df395974301ec3c7b3348a84ffa67e98974675879b2"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,26 +16,6 @@
         ]
     },
     "default": {
-        "ag-ui-langgraph": {
-            "extras": [
-                "fastapi"
-            ],
-            "hashes": [
-                "sha256:35b43bf74b3dc568943bb0808141ae6e583b3c08596892b21a647072434d2f34",
-                "sha256:5ca32d6f04f40073493227fb272d3493e84cd0e0f5a269d74d0ac1a4234cfe04"
-            ],
-            "index": "pypi",
-            "markers": "python_version >= '3.10' and python_version < '3.14'",
-            "version": "==0.0.7"
-        },
-        "ag-ui-protocol": {
-            "hashes": [
-                "sha256:0e93fd9f7c74d52afbd824d6e9738bd3422e859503905ba7582481cbc3c67ab2",
-                "sha256:8c821662ca6e9852569022f449b9f7aeb3f16aa75390fa8c28ceae2cce642baa"
-            ],
-            "markers": "python_version >= '3.9' and python_version < '4.0'",
-            "version": "==0.1.7"
-        },
         "aiohappyeyeballs": {
             "hashes": [
                 "sha256:c3f9d0113123803ccadfdf3f0faa505bc78e6a72d1cc4806cbd719826e943558",
@@ -293,15 +273,6 @@
             ],
             "markers": "python_version >= '3.7'",
             "version": "==8.1.8"
-        },
-        "copilotkit": {
-            "hashes": [
-                "sha256:1296b9a369a7d44db8497700e356e92385e3c9a40ab7bf3dea5f7dbd0365ae4f",
-                "sha256:8418723aedec72a14dbccd95a974e1d07059153a14f06030ca9e4830e3acbf39"
-            ],
-            "index": "pypi",
-            "markers": "python_version >= '3.10' and python_version < '3.13'",
-            "version": "==0.1.60"
         },
         "dataclasses-json": {
             "hashes": [
@@ -1200,13 +1171,6 @@
             "markers": "python_version >= '3.8'",
             "version": "==25.0"
         },
-        "partialjson": {
-            "hashes": [
-                "sha256:22c6c60944137f931a7033fa0eeee2d74b49114f3d45c25a560b07a6ebf22b76",
-                "sha256:91217e19a15049332df534477f56420065ad1729cedee7d8c7433e1d2acc7dca"
-            ],
-            "version": "==0.0.8"
-        },
         "platformdirs": {
             "hashes": [
                 "sha256:3d512d96e16bcb959a814c9f348431070822a6496326a4be0911c40b5a74c2bc",
@@ -1214,15 +1178,6 @@
             ],
             "markers": "python_version >= '3.9'",
             "version": "==4.3.8"
-        },
-        "prompt-toolkit": {
-            "hashes": [
-                "sha256:52742911fde84e2d423e2f9a4cf1de7d7ac4e51958f648d9540e0fb8db077b07",
-                "sha256:931a162e3b27fc90c86f1b48bb1fb2c528c2761475e57c9c06de13311c7b54ed"
-            ],
-            "index": "pypi",
-            "markers": "python_version >= '3.8'",
-            "version": "==3.0.51"
         },
         "propcache": {
             "hashes": [
@@ -1835,14 +1790,6 @@
             "markers": "python_version >= '3.9'",
             "version": "==0.9.0"
         },
-        "toml": {
-            "hashes": [
-                "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b",
-                "sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f"
-            ],
-            "markers": "python_version >= '2.6' and python_version not in '3.0, 3.1, 3.2'",
-            "version": "==0.10.2"
-        },
         "tqdm": {
             "hashes": [
                 "sha256:26445eca388f82e72884e0d580d5464cd801a3ea01e63e5601bdff9ba6a48de2",
@@ -1898,13 +1845,6 @@
             "index": "pypi",
             "markers": "python_version >= '3.9'",
             "version": "==0.34.0"
-        },
-        "wcwidth": {
-            "hashes": [
-                "sha256:3da69048e4540d84af32131829ff948f1e022c1c6bdb8d6102117aac784f6859",
-                "sha256:72ea0c06399eb286d978fdedb6923a9eb47e1c486ce63e9b4e64fc18303972b5"
-            ],
-            "version": "==0.2.13"
         },
         "xxhash": {
             "hashes": [

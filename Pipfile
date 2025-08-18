@@ -16,9 +16,6 @@ langgraph = "*"
 langgraph-prebuilt = "*"
 textual = "*"
 rich = "*"
-prompt-toolkit = "*"
-ag-ui-langgraph = "*"
-copilotkit = "*"
 
 [dev-packages]
 
