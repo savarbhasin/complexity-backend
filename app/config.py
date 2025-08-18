@@ -12,7 +12,7 @@ GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 # Model Configuration
 DEFAULT_MODEL = "gemini-2.5-flash"
 DEFAULT_TEMPERATURE = 0.2
-DEFAULT_NUM_RESULTS = 1
+DEFAULT_NUM_RESULTS = int(os.getenv("DEFAULT_NUM_RESULTS"))
 
 # External API URLs
 YOUTUBE_SUMMARY_API_BASE = "https://yt-fastapi-backend.onrender.com/summary"
