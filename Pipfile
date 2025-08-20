@@ -16,6 +16,7 @@ langgraph = "*"
 langgraph-prebuilt = "*"
 textual = "*"
 rich = "*"
+mangum = "*"
 
 [dev-packages]
 

@@ -3,3 +3,4 @@ myenv
 __pycache__/
 velle
 .DS_Store
+GUI_DEPLOYMENT.md
